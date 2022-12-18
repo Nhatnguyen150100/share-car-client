@@ -1,0 +1,99 @@
+.sc-color{
+  color: #043d5d;
+}
+
+.sc-background-color{
+  background-color: #043d5d;
+}
+
+.sc-font-family{
+  font-family: sans-serif;
+}
+
+.sc-heading{
+  font-family: sans-serif;
+  font-weight: 700;
+  color: #043d5d;
+}
+
+
+.btn-hover-bg:hover{
+  color: white !important;
+  background-color: #3498db !important;
+  border-color: #3498db !important;
+  --bs-btn-color:#3498db !important;
+}
+
+.sc-blue-pale{
+  background-color: #40bab5;
+}
+
+.btn-outline-light{
+  --bs-btn-hover-color: #043d5d !important;
+  --bs-btn-active-color: #043d5d !important;
+}
+
+.btn-primary{
+  --bs-btn-bg: #043d5d !important;
+  --bs-btn-border-color: #043d5d !important;
+  --bs-btn-hover-bg: #3498db !important;
+  --bs-btn-hover-border-color: #3498db !important;
+  --bs-btn-active-bg: #3498db !important;
+  --bs-btn-active-border-color: #3498db !important;
+  --bs-btn-disabled-bg: #043d5d !important;
+  --bs-btn-disabled-border-color: #043d5d !important;
+}
+
+.dropdown-menu{
+  --bs-dropdown-link-color: #043d5d !important;
+  --bs-dropdown-link-hover-bg:#043d5d !important;
+  --bs-dropdown-link-active-bg: #043d5d !important;
+  --bs-dropdown-link-hover-color: white !important;
+}
+
+.nav-tabs{
+  --bs-nav-tabs-link-hover-border-color: #043d5d #043d5d #043d5d !important;
+  --bs-nav-tabs-link-active-border-color: #043d5d #043d5d white !important; 
+  --bs-nav-tabs-border-color: #043d5d !important;
+  --bs-nav-tabs-link-active-color:#043d5d !important;
+  --bs-nav-tabs-border-width: 3px !important;
+  border-bottom: var(--bs-nav-tabs-border-width) double var(--bs-nav-tabs-border-color) !important;
+}
+
+.nav-link-non-active{
+  color: #043d5d !important;
+}
+
+.nav-link{
+  height: 50px;
+}
+
+.nav-link-non-active:hover{
+  -webkit-text-fill-color: white !important;
+  background-color: #3498db !important;
+  border-top:double !important;
+  border-left: double !important;
+  border-right: double !important;
+  border-bottom: double !important;
+}
+
+.nav-link.active:hover{
+  -webkit-text-fill-color: #3498db !important;
+}
+
+.nav-link.active{
+  border-top:double !important;
+  border-left: double !important;
+  border-right: double !important;
+}
+
+.avatar {
+  vertical-align: middle;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.trip-hover:hover{
+  background-color: rgb(210, 224, 238);
+}
