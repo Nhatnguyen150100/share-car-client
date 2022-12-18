@@ -135,7 +135,7 @@ export default function ListTrip(props){
                       </div>
                       <div className='d-flex flex-row'>
                         <h5 style={{width:"150px"}}>Cost: </h5>
-                        <h5 className='sc-heading ms-2'>{trip.cost}{'$'}</h5>
+                        <h5 className='sc-heading ms-2' style={{color:"red"}}>{trip.cost}{'$'}</h5>
                       </div>
                       <ButtonComponent btnType="btn-info" className="mt-2" label="Order trip" onClick={e=>oderTrip(trip.id)}/>
                     </div>
