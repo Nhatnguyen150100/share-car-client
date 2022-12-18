@@ -114,7 +114,7 @@ export default function Login(props) {
 				</div>
 				<div className="mt-3 d-flex flex-row justify-content-end w-100">
 					<span className="me-1">Don't have an account</span>
-						<Link className='text-capitalize sc-color' to={'/register'}>{register}</Link>
+						<Link className='text-capitalize sc-color' to={'/register'}>register</Link>
 				</div>
 			</div>
 		</div>
