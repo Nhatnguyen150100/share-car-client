@@ -15,7 +15,7 @@ function App() {
 	const nav = useNavigate();
 
 	useEffect(() => {
-    if (!user.data.accessToken && window.location.href!='http://localhost:5173/register') {
+    if (!user.data.accessToken && window.location.href!='https://share-car.onrender.com/register') {
       toast.info("Please login to use. If you don't have an account you can register a new account");
       nav("/login");
 	  }
