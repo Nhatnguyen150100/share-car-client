@@ -65,6 +65,7 @@ export default function NavBarComponent(props) {
 							<ul className="dropdown-menu w-100">
 								<li>
                   <Link className="dropdown-item" to={'/profile'} style={{ cursor: 'pointer' }}>
+                    Profile
                   </Link>
 								</li>
 								<li>
