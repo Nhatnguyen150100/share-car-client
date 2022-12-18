@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { postToServerWithToken } from '../services/getAPI';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { setData } from '../redux/UserSlice';
 import { setDataDriver } from '../redux/DriverSlice';
 
@@ -30,7 +30,7 @@ export default function NavBarComponent(props) {
 			<div className="container-fluid">
 				<div className="container d-flex justify-content-between align-items-center">
 					<div className='d-flex flex-row justify-content-end align-items-center'>
-						<a className='d-flex flex-row align-items-center' href='/' style={{textDecoration:"none"}}>
+						<Link className='d-flex flex-row align-items-center' to={'/'} style={{textDecoration:"none"}}>
 							<div
 							className="rounded mb-1"
 							style={{
@@ -40,10 +40,10 @@ export default function NavBarComponent(props) {
 								backgroundSize: '100% 100%',
 							}}></div>
 							<h2 className="p-0 mb-0 ms-2" style={{fontWeight:"600",color:"white"}}>Share Car</h2>
-						</a>
-						<a className='d-flex flex-row align-items-center ms-4' href='/list-car' style={{textDecoration:"none",borderLeft:"double",borderColor:"white"}}>
-							<h3 className="p-0 mb-0 ms-4" style={{fontWeight:"600",color:"white"}}>List Trip</h3>
-						</a>
+						</Link>
+            <Link className='d-flex flex-row align-items-center ms-4' to={'/list-car'} style={{textDecoration:"none",borderLeft:"double",borderColor:"white"}}>
+              <h3 className="p-0 mb-0 ms-4" style={{fontWeight:"600",color:"white"}}>List Trip</h3>
+            </Link>
           </div>
 					<div className="dropdown">
 						<button
@@ -64,9 +64,8 @@ export default function NavBarComponent(props) {
 						{user.data.accessToken && (
 							<ul className="dropdown-menu w-100">
 								<li>
-									<a className="dropdown-item" href='/profile' style={{ cursor: 'pointer' }}>
-										Profile
-									</a>
+                  <Link className="dropdown-item" to={'/profile'} style={{ cursor: 'pointer' }}>
+                  </Link>
 								</li>
 								<li>
 									<a className="dropdown-item" onClick={logOut} style={{ cursor: 'pointer' }}>

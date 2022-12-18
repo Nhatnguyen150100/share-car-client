@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ButtonComponent from '../component/ButtonComponent';
 import { postToServer } from '../services/getAPI';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import NavBarComponent from '../component/NavBarComponent';
 
 export default function Register(props) {
@@ -132,9 +132,7 @@ export default function Register(props) {
 				</div>
 				<div className="mt-3 d-flex flex-row justify-content-end w-100">
 					<span className="me-1">Already have an account?</span>
-					<a href="/login" className="text-capitalize sc-color">
-						login
-					</a>
+					<Link className="text-capitalize sc-color" to={'/login'}>login</Link>
 				</div>
 			</div>
 		</div>
