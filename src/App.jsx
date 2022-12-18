@@ -24,13 +24,11 @@ function App() {
 	return (
 		<Routes>
 			<Route path="/sc-admin" element={<HomePageAdmin />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 			<Route path="/list-car" element={<ListTrip />} />
 			<Route path="/profile" element={<Profile/>} />
 			<Route path="/" element={<HomePage />} />
 			<Route path="/login" element={<Login />} />
-			<Route path="/register" element={<Register />} />
 		</Routes>
 	);
 }
