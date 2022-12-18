@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { setData } from '../redux/UserSlice.jsx';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { Link } from "react-router-dom";
 import NavBarComponent from '../component/NavBarComponent';
 
 export default function Login(props) {
@@ -114,9 +114,7 @@ export default function Login(props) {
 				</div>
 				<div className="mt-3 d-flex flex-row justify-content-end w-100">
 					<span className="me-1">Don't have an account</span>
-					<a href="/register" className="text-capitalize sc-color">
-						register
-					</a>
+						<Link className='text-capitalize sc-color' to={'/register'}>{register}</Link>
 				</div>
 			</div>
 		</div>
