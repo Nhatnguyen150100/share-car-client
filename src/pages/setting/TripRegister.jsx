@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { getDay } from '../../common/Commom';
 import { TextFieldEditable,SelectFieldInput } from '../../common/FieldInput';
 import ButtonComponent from '../../component/ButtonComponent';
 import { callToServerWithTokenAndUserObject, getToServerWithTokenAndUserObject } from '../../services/getAPI';
@@ -13,6 +14,7 @@ export default function TripRegister(props){
   const [carId,setCarId] = useState(driver[0].id);
   const [cost,setCost] = useState();
   const [time,setTime] = useState();
+  const [date,setDate] = useState();
   const [loading,setLoading] = useState(false);
   const [cityId,setCityId] = useState();
   const [district,setDistrict] = useState();
@@ -21,15 +23,19 @@ export default function TripRegister(props){
   const [districtEnd,setDistrictEnd] = useState();
   const [streetEnd,setStreetEnd] = useState('');
 
-  console.log(time);
-
   const createTrip = () =>{
     if(!cost) toast.error("Cost is required");
     else if(!time) toast.error("time start is required");
+    else if(!date) toast.error("date start is required");
+    else if(!street) toast.error("street start is required");
+    else if(!streetEnd) toast.error("street end is required");
     else{
       if(confirm("Are you sure you want create this trip?")){
-        let startPosition = Object.assign({},{city:city[cityId-1].name, district: city[cityId-1].districts[district].name, street: street});
-        let endPosition = Object.assign({},{city:city[cityIdEnd-1].name, district: city[cityIdEnd-1].districts[districtEnd].name, street: streetEnd});
+        let startPosition = street + ', ' + city[cityId-1].districts[district].name + ', ' + city[cityId-1].name;
+        let endPosition = streetEnd + ', ' + city[cityIdEnd-1].districts[districtEnd].name + ', ' + city[cityIdEnd-1].name;
+        let timeToserver = getDay(date)+' '+ time;
+        // let startPosition = Object.assign({},{city:city[cityId-1].name, district: city[cityId-1].districts[district].name, street: street});
+        // let endPosition = Object.assign({},{city:city[cityIdEnd-1].name, district: city[cityIdEnd-1].districts[districtEnd].name, street: streetEnd});
         setLoading(true);
         callToServerWithTokenAndUserObject("post",'/v1/trip/register-trip',
         {
@@ -37,10 +43,10 @@ export default function TripRegister(props){
         },
         {
           cost:cost,
-          startAt: time,
+          startAt: timeToserver,
           carId: carId,
-          startPosition: city[cityId-1].name,
-          endPosition: city[cityId-1].districts[district].name,
+          startPosition: startPosition,
+          endPosition: endPosition,
         },user.accessToken)
         .then((result) => {
           toast.success(result.message);
@@ -76,7 +82,11 @@ export default function TripRegister(props){
       </div> 
       <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
         <span className='sc-heading text-uppercase' style={{width:"250px"}}>Time start:</span>
-        <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" type='date' value={time} save={value=>setTime(value)} required={true}/>
+        <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" type='time' value={time} save={value=>setTime(value)} required={true}/>
+      </div>
+      <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
+        <span className='sc-heading text-uppercase' style={{width:"250px"}}>Date start:</span>
+        <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" type='date' value={date} save={value=>setDate(value)} required={true}/>
       </div>
       <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
         <span className='sc-heading text-uppercase' style={{width:"250px"}}>Start position:</span>

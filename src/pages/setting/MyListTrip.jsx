@@ -16,8 +16,6 @@ export default function MyListTrip(props){
   const [myListTrip,setMyListTrip] = useState([]);
   const [guest,setGuest] = useState([]);
 
-  console.log(myListTrip);
-
   useEffect(()=>{
     getMyTrip();
   },[])

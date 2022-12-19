@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { getDay, getTime } from '../common/Commom.jsx';
 import { SelectFieldInput, TextFieldEditable } from '../common/FieldInput.jsx';
 import ButtonComponent from '../component/ButtonComponent.jsx';
 import NavBarComponent from '../component/NavBarComponent.jsx';
@@ -14,15 +15,45 @@ export default function ListTrip(props){
   const [listTrip,setListTrip] = useState([]);
 
   const [nameSearch,setNameSearch] = useState();
-  const [cityId,setCityId] = useState();
-  const [district,setDistrict] = useState();
+  const [citySearch,setCitySearch] = useState('');
+  const [districtSearch,setDistrictSearch] = useState('');
+
   const [loading,setLoading] = useState(false);
   const [loadingListTrip,setLoadingListTrip] = useState(false);
 
+  const checkWordInString = (word,string) => {
+    return RegExp('\\b'+ word +'\\b').test(string);
+  }
+
+  const onSearch = () => {
+    setLoading(true);
+    let result = [];
+    if(nameSearch) {
+      result = listTrip.filter((trip) => {
+        return trip.startPosition.includes(city[citySearch-1].name) && trip.startPosition.includes(city[citySearch-1].name) && trip.driverInfo.fullName.includes(nameSearch)
+      });
+    }else{
+      result = listTrip.filter((trip) => {
+        return checkWordInString(city[citySearch-1].name,trip.startPosition) && trip.startPosition.includes(city[citySearch-1].name)
+      });
+    }
+    setListTrip(result);
+    console.log(result)
+    setLoading(false);
+  }
+
+  const onRemove = () => {
+    getListTrip();
+  }
+
   useEffect(()=>{
     if(city){
-      setCityId(1);
-      setDistrict(0);
+      // let cityInsert = citySearch.unshift('');
+      // let districtInsert = districtSearch.unshift('');
+      // setCitySearch(cityInsert);
+      // setDistrictSearch(districtInsert);
+      setCitySearch(1);
+      setDistrictSearch(0);
     }
     getListTrip();
   },[city])
@@ -69,15 +100,15 @@ export default function ListTrip(props){
     <NavBarComponent />
     <div className='container h-100'>
       <div className='d-flex flex-row my-4 h-100'>
-        <div className='d-flex flex-column rounded p-3 sc-background-color me-4 shadow-lg' style={{height:"350px"}}>
+        <div className='d-flex flex-column rounded p-3 sc-background-color me-4 shadow-lg' style={{height:"400px"}}>
           <h3 className='text-white text-center fw-bold mt-2'>Filter for share car</h3>
           <div className='d-flex flex-row justify-content-start align-items-center my-2' style={{width:"320px"}}>
             <span className='sc-heading text-uppercase' style={{width:"140px",color:"white"}}>Name:</span>
-            <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" value={nameSearch} save={value=>setNameSearch(value)} placeholder="search for look up!" required={true}/>
+            <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" value={nameSearch} save={value=>setNameSearch(value)} placeholder="search for look up!"/>
           </div>
           <div className='d-flex flex-row justify-content-start align-items-center my-2' style={{width:"320px"}}>
             <span className='sc-heading text-uppercase' style={{width:"150px",color:"white"}}>city:</span>
-            <SelectFieldInput width="100%" value={cityId} onChange={cityId=>setCityId(cityId)} required={true}>
+            <SelectFieldInput width="100%" value={citySearch} onChange={citySearch=>setCitySearch(citySearch)} required={true}>
               {
                 Object.values(city).map(city=><option key={city.id} value={city.id}>{city.name}</option>)
               }
@@ -86,15 +117,16 @@ export default function ListTrip(props){
           <div className='d-flex flex-row justify-content-start align-items-center my-2' style={{width:"320px"}}>
             <span className='sc-heading text-uppercase' style={{width:"150px",color:"white"}}>district:</span>
             {
-              city[cityId-1] && <SelectFieldInput width="100%" value={district} onChange={district=>setDistrict(district)} required={true}>
+              city[citySearch-1] && <SelectFieldInput width="100%" value={districtSearch} onChange={districtSearch=>setDistrictSearch(districtSearch)} required={true}>
                 {
-                  city[cityId-1].districts.map(district=><option key={district.id} value={district.id}>{district.name}</option>)
+                  city[citySearch-1].districts.map(districtSearch=><option key={districtSearch.id} value={districtSearch.id}>{districtSearch.name}</option>)
                 }
               </SelectFieldInput>
             }
           </div>
-          <div className='mt-4 d-flex justify-content-center'>
-            {loading ? <div className="spinner-grow"></div> : <ButtonComponent btnType="btn-success" label="Search for trip"/>}
+          <div className='mt-4 d-flex flex-column justify-content-center'>
+            {loading ? <div className="spinner-grow"></div> : <ButtonComponent btnType="btn-success" label="Search for trip" onClick={onSearch}/>}
+            {loading ? <div className="spinner-grow"></div> : <div className='my-4'><ButtonComponent btnType="btn-danger" label="Remove fliter" onClick={onRemove}/></div>}
           </div>
         </div>
         <div className='d-flex flex-column justify-content-start align-items-start flex-grow-1'>
@@ -126,12 +158,20 @@ export default function ListTrip(props){
                         <h5 className='sc-heading ms-2'>{trip.carInfo.carName}</h5>
                       </div>
                       <div className='d-flex flex-row'>
-                        <h5 style={{width:"150px"}}>Route: </h5>
-                        <h5 className='sc-heading ms-2'>{trip.startPosition} {'->'} {trip.endPosition}</h5>
+                        <h5 style={{width:"150px"}}>Start position: </h5>
+                        <h5 className='sc-heading ms-2'>{trip.startPosition}</h5>
+                      </div>
+                      <div className='d-flex flex-row'>
+                        <h5 style={{width:"150px"}}>End position: </h5>
+                        <h5 className='sc-heading ms-2'>{trip.endPosition}</h5>
                       </div>
                       <div className='d-flex flex-row'>
                         <h5 style={{width:"150px"}}>Phone: </h5>
                         <h5 className='sc-heading ms-2'>{trip.driverInfo.phoneNumber}</h5>
+                      </div>
+                      <div className='d-flex flex-row'>
+                        <h5 style={{width:"150px"}}>Time start: </h5>
+                        <h5 className='sc-heading ms-2'>{getDay(trip.startAt) + ' ~ ' + getTime(trip.startAt)}</h5>
                       </div>
                       <div className='d-flex flex-row'>
                         <h5 style={{width:"150px"}}>Cost: </h5>
