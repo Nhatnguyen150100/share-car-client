@@ -4,13 +4,14 @@ import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, 
 import storage from 'redux-persist/lib/storage';
 import DriverSlice from './DriverSlice.jsx';
 import CitySlice from './CitySlice.jsx';
+import TripDetailSlice from './TripDetailSlice.jsx';
 
 const persistConfig = {
 	key: 'root',
 	version: 1,
 	storage,
 };
-const rootReducer = combineReducers({ user: UserSlice, driver: DriverSlice, city: CitySlice });
+const rootReducer = combineReducers({ user: UserSlice, driver: DriverSlice, city: CitySlice, trip: TripDetailSlice });
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({

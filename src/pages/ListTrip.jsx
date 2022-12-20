@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getDay, getTime } from '../common/Commom.jsx';
+import { getAgeFromBirthDay, getDay, getTime } from '../common/Commom.jsx';
 import { SelectFieldInput, TextFieldEditable } from '../common/FieldInput.jsx';
 import ButtonComponent from '../component/ButtonComponent.jsx';
 import NavBarComponent from '../component/NavBarComponent.jsx';
+import { setDataTrip } from '../redux/TripDetailSlice.jsx';
 import { callToServerWithTokenAndUserObject, getToServerWithTokenAndUserObject } from '../services/getAPI.jsx';
 
 
 export default function ListTrip(props){
   const city = useSelector(state => state.city.data);
   const user = useSelector(state => state.user.data);
+  const dispatch = useDispatch();
+  const nav = useNavigate();
 
   const [listTrip,setListTrip] = useState([]);
 
@@ -38,7 +42,6 @@ export default function ListTrip(props){
       });
     }
     setListTrip(result);
-    console.log(result)
     setLoading(false);
   }
 
@@ -48,27 +51,11 @@ export default function ListTrip(props){
 
   useEffect(()=>{
     if(city){
-      // let cityInsert = citySearch.unshift('');
-      // let districtInsert = districtSearch.unshift('');
-      // setCitySearch(cityInsert);
-      // setDistrictSearch(districtInsert);
       setCitySearch(1);
       setDistrictSearch(0);
     }
     getListTrip();
   },[city])
-
-
-  const getAgeFromBirthDay = (dateString) => {
-    let today = new Date();
-    let birthDate = new Date(dateString);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    let m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-    }
-    return age;
-  }
 
   const getListTrip = () => {
     setLoadingListTrip(true);
@@ -81,6 +68,7 @@ export default function ListTrip(props){
     .catch((result) => toast.error(result.message)).finally(() => setLoadingListTrip(false));
   }
 
+
   const oderTrip = (id) =>{
     if(confirm("Are you sure you want to order this trip?")){
       callToServerWithTokenAndUserObject("post",`/v1/trip/${id}`,
@@ -92,6 +80,8 @@ export default function ListTrip(props){
       .then((result) => {
         toast.success(result.message);
         getListTrip();
+        dispatch(setDataTrip(listTrip.filter((item) => item.id===id)[0]));
+        nav('/trip-detail');
       })
       .catch((result) => toast.error(result.message));
     }

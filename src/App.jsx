@@ -8,6 +8,8 @@ import { toast } from 'react-toastify';
 import Profile from './pages/setting/Profile.jsx';
 import ListTrip from './pages/ListTrip.jsx';
 import HomePageAdmin from './admin/HomePageAdmin.jsx';
+import MyTrip from './pages/MyTrip.jsx';
+import TripDetail from './pages/TripDetail.jsx';
 
 
 function App() {
@@ -23,6 +25,8 @@ function App() {
 
 	return (
 		<Routes>
+			<Route path='/trip-detail' element={<TripDetail />} />
+			<Route path='/my-trip' element={<MyTrip />} />
 			<Route path="/sc-admin" element={<HomePageAdmin />} />
             <Route path="/register" element={<Register />} />
 			<Route path="/list-car" element={<ListTrip />} />
