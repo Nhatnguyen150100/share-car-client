@@ -91,6 +91,7 @@ export default function ListTrip(props){
       },user.accessToken)
       .then((result) => {
         toast.success(result.message);
+        getListTrip();
       })
       .catch((result) => toast.error(result.message));
     }
@@ -144,7 +145,7 @@ export default function ListTrip(props){
                     <div className='border p-3 rounded' style={{height:"100px",backgroundColor:"white"}}>
                       <img src="/assets/icon/user.png" alt="Avatar" className="avatar" style={{border:"double",borderColor:"#043d5d",height:"60px",width:"60px",padding:"5px"}}></img>
                     </div>
-                    <div className='d-flex flex-column ms-3'>
+                    <div className='d-flex flex-column ms-3 w-100'>
                       <div className='d-flex flex-row'>
                         <h5 style={{width:"150px"}}>Name driver: </h5>
                         <h5 className='sc-heading ms-2'>{trip.driverInfo.fullName}</h5>
@@ -156,6 +157,14 @@ export default function ListTrip(props){
                       <div className='d-flex flex-row'>
                         <h5 style={{width:"150px"}}>Car Name: </h5>
                         <h5 className='sc-heading ms-2'>{trip.carInfo.carName}</h5>
+                      </div>
+                      <div className='d-flex flex-row'>
+                        <h5 style={{width:"150px"}}>Max guests: </h5>
+                        <h5 className='sc-heading ms-2'>{trip.carInfo.maxUser}</h5>
+                      </div>
+                      <div className='d-flex flex-row'>
+                        <h5 style={{width:"150px"}}>Current guests: </h5>
+                        <h5 className='sc-heading ms-2' style={{color:`${trip.userInfo.length==trip.carInfo.maxUser && 'red'}`}}>{trip.userInfo.length}</h5>
                       </div>
                       <div className='d-flex flex-row'>
                         <h5 style={{width:"150px"}}>Start position: </h5>
@@ -171,13 +180,13 @@ export default function ListTrip(props){
                       </div>
                       <div className='d-flex flex-row'>
                         <h5 style={{width:"150px"}}>Time start: </h5>
-                        <h5 className='sc-heading ms-2'>{getDay(trip.startAt) + ' ~ ' + getTime(trip.startAt)}</h5>
+                        <h5 className='sc-heading ms-2'>{getTime(trip.startAt) + ' ~ ' + getDay(trip.startAt)}</h5>
                       </div>
                       <div className='d-flex flex-row'>
                         <h5 style={{width:"150px"}}>Cost: </h5>
                         <h5 className='sc-heading ms-2' style={{color:"red"}}>{trip.cost}{'$'}</h5>
                       </div>
-                      <ButtonComponent btnType="btn-info" className="mt-2" label="Order trip" onClick={e=>oderTrip(trip.id)}/>
+                      <ButtonComponent btnType={`${trip.userInfo.length==trip.carInfo.maxUser?'btn-danger':'btn-info'}`} className="mt-2" label={`${trip.userInfo.length==trip.carInfo.maxUser?'This trip is full':' Order trip'}`} onClick={e=>oderTrip(trip.id)} disabled={trip.userInfo.length==trip.carInfo.maxUser}/>
                     </div>
                   </div>
                 })

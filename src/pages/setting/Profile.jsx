@@ -64,13 +64,13 @@ export default function Profile(props){
               <span className="d-none d-lg-block">Driver</span>
             </a></li>
             {
-              driver.lenght>0 && <li className="nav-item"><a className={`text-uppercase d-flex align-items-center justify-content-center nav-link ${(selectedTab==2)?"vc-blue active":"text-secondary nav-link-non-active"}`} style={{cursor:"pointer"}} onClick={e=>setSelectedTab(2)}>
+              driver.length>0 && <li className="nav-item"><a className={`text-uppercase d-flex align-items-center justify-content-center nav-link ${(selectedTab==2)?"vc-blue active":"text-secondary nav-link-non-active"}`} style={{cursor:"pointer"}} onClick={e=>setSelectedTab(2)}>
                 <span className="material-symbols-outlined me-1">pacemaker</span>
                 <span className="d-none d-lg-block">Trip</span>
               </a></li>
             }
             {
-              driver.lenght>0 && <li className="nav-item"><a className={`text-uppercase d-flex align-items-center justify-content-center nav-link ${(selectedTab==3)?"vc-blue active":"text-secondary nav-link-non-active"}`} style={{cursor:"pointer"}} onClick={e=>setSelectedTab(3)}>
+              driver.length>0 && <li className="nav-item"><a className={`text-uppercase d-flex align-items-center justify-content-center nav-link ${(selectedTab==3)?"vc-blue active":"text-secondary nav-link-non-active"}`} style={{cursor:"pointer"}} onClick={e=>setSelectedTab(3)}>
                 <span className="material-symbols-outlined me-1">format_list_bulleted</span>
                 <span className="d-none d-lg-block">List Trip</span>
               </a></li>
