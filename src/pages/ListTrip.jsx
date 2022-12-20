@@ -32,16 +32,19 @@ export default function ListTrip(props){
   const onSearch = () => {
     setLoading(true);
     let result = [];
-    if(nameSearch) {
-      result = listTrip.filter((trip) => {
-        return trip.startPosition.includes(city[citySearch-1].name) && trip.startPosition.includes(city[citySearch-1].name) && trip.driverInfo.fullName.includes(nameSearch)
-      });
-    }else{
-      result = listTrip.filter((trip) => {
-        return checkWordInString(city[citySearch-1].name,trip.startPosition) && trip.startPosition.includes(city[citySearch-1].name)
-      });
-    }
-    setListTrip(result);
+    getListTripPromise().then(() => {
+      if(nameSearch) {
+        result = listTrip.filter((trip) => {
+          return trip.endPosition.includes(city[citySearch-1].name) && trip.endPosition.includes(city[citySearch-1].name) && trip.driverInfo.fullName.includes(nameSearch)
+        });
+        setListTrip(result);
+      }else{
+        result = listTrip.filter((trip) => {
+          return checkWordInString(city[citySearch-1].name,trip.endPosition) && trip.endPosition.includes(city[citySearch-1].name)
+        });
+        setListTrip(result);
+      }
+    }).catch(error => toast.error(error)).finally(() => setLoading(false))
     setLoading(false);
   }
 
@@ -56,6 +59,19 @@ export default function ListTrip(props){
     }
     getListTrip();
   },[city])
+
+  const getListTripPromise = () => {
+    return new Promise((resolve, reject) => {
+      getToServerWithTokenAndUserObject('/v1/trip/',
+      {},user.accessToken)
+      .then((result) => {
+        toast.success(result.message);
+        setListTrip(result.data);
+        resolve();
+      }).catch((result) => toast.error(result.message)).finally(() => reject());
+    })
+  }
+  
 
   const getListTrip = () => {
     setLoadingListTrip(true);
