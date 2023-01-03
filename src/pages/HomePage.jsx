@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { setDataCity } from '../redux/CitySlice.jsx';
 import { getToServerWithTokenAndUserObject } from '../services/getAPI.jsx';
+import Map from './map/Map.jsx';
 
 export default function HomePage() {
 	const user = useSelector((state) => state.user);
@@ -46,6 +47,7 @@ export default function HomePage() {
 						width: '845px',
 					}}></div>
 				<div className="d-flex flex-column align-items-center justify-content-center">
+					<Map />
 					<div style={{ textAlign: 'justify' }}></div>
 				</div>
 			</div>

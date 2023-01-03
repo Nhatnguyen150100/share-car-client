@@ -19,4 +19,4 @@ export const getAgeFromBirthDay = (dateString) => {
         age--;
     }
     return age;
-  }
+}
