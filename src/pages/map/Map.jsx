@@ -49,7 +49,7 @@ const options = {
 export default function Map(){
   return <LoadScript googleMapsApiKey={MapConfig.key}>
     <GoogleMap
-      mapContainerStyle={containerStyle}
+      mapContainerStyle={mapContainerStyle}
       center={center}
       zoom={10}
     >
