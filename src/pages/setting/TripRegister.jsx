@@ -24,7 +24,11 @@ export default function TripRegister(props){
   const [endPosition,setEndPosition] = useState('No data');
   const [distance,setDistance] = useState();
   const mapboxDirections = new MapboxDirections({
-    accessToken: mapboxgl.accessToken
+    accessToken: mapboxgl.accessToken,
+    profile: 'mapbox/driving',
+    controls:{
+      instructions : false,
+    }
   });
 
   const getCoordinates = () =>{
@@ -60,13 +64,13 @@ export default function TripRegister(props){
       mapboxDirections,
       'top-left'
     );
-    map.current.addControl(
-      new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl: mapboxgl
-      }),
-      'top-right'
-    );
+    // map.current.addControl(
+    //   new MapboxGeocoder({
+    //     accessToken: mapboxgl.accessToken,
+    //     mapboxgl: mapboxgl
+    //   }),
+    //   'top-right'
+    // );
     map.current.addControl(new mapboxgl.FullscreenControl());
     map.current.addControl(
       new mapboxgl.NavigationControl()
@@ -104,6 +108,10 @@ export default function TripRegister(props){
           carId: carId,
           startPosition: startPosition,
           endPosition: endPosition,
+          latStartPosition: mapboxDirections.getOrigin().geometry.coordinates[1],
+          lngStartPosition: mapboxDirections.getOrigin().geometry.coordinates[0],
+          latEndPosition: mapboxDirections.getDestination().geometry.coordinates[1],
+          lngEndPosition: mapboxDirections.getDestination().geometry.coordinates[0],
         },user.accessToken)
         .then((result) => {
           toast.success(result.message);
