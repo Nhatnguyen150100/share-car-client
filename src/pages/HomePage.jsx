@@ -5,11 +5,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { setDataCity } from '../redux/CitySlice.jsx';
 import { getToServerWithTokenAndUserObject } from '../services/getAPI.jsx';
-import Map from './map/Map.jsx';
 
 export default function HomePage() {
 	const user = useSelector((state) => state.user);
-  const dispatch = useDispatch();
+  	const dispatch = useDispatch();
 	const nav = useNavigate();
 
 	useEffect(()=>{
@@ -44,10 +43,9 @@ export default function HomePage() {
 						height: '100%',
 						backgroundImage: `url("/assets/images/taxi-car.png")`,
 						backgroundSize: '100% 100%',
-						width: '845px',
+						width: '815px',
 					}}></div>
 				<div className="d-flex flex-column align-items-center justify-content-center">
-					<Map />
 					<div style={{ textAlign: 'justify' }}></div>
 				</div>
 			</div>

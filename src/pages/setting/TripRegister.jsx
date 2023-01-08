@@ -1,41 +1,98 @@
 import React, { useState, useEffect } from 'react';
+import { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { getDay } from '../../common/Commom';
+import { CURRENT_MONEY, forMatMoneyVND, getDay, publicKey } from '../../common/Commom';
 import { TextFieldEditable,SelectFieldInput } from '../../common/FieldInput';
 import ButtonComponent from '../../component/ButtonComponent';
-import { callToServerWithTokenAndUserObject, getToServerWithTokenAndUserObject } from '../../services/getAPI';
+import { callToServerWithTokenAndUserObject, getDirections, getLocationOnReverseGeocoding } from '../../services/getAPI';
+import mapboxgl from 'mapbox-gl';
+
+mapboxgl.accessToken = publicKey;
 
 export default function TripRegister(props){
   const driver = useSelector(state=>state.driver.data);
-  const user = useSelector(state=>state.user.data);
-  const city = useSelector(state=>state.city.data);
+  const mapContainer = useRef(null);
+  const map = useRef(null);
 
   const [carId,setCarId] = useState(driver[0].id);
   const [cost,setCost] = useState();
   const [time,setTime] = useState();
   const [date,setDate] = useState();
   const [loading,setLoading] = useState(false);
-  const [cityId,setCityId] = useState();
-  const [district,setDistrict] = useState();
-  const [street,setStreet] = useState('');
-  const [cityIdEnd,setCityIdEnd] = useState();
-  const [districtEnd,setDistrictEnd] = useState();
-  const [streetEnd,setStreetEnd] = useState('');
+  const [startPosition,setStartPosition] = useState('No data');
+  const [endPosition,setEndPosition] = useState('No data');
+  const [distance,setDistance] = useState();
+  const mapboxDirections = new MapboxDirections({
+    accessToken: mapboxgl.accessToken
+  });
+
+  const getCoordinates = () =>{
+    getLocationOnReverseGeocoding(mapboxDirections.getOrigin().geometry.coordinates[0],mapboxDirections.getOrigin().geometry.coordinates[1]).then(
+      data => setStartPosition(data.features[0].place_name)
+    ).catch(error => toast.error(error));
+    getLocationOnReverseGeocoding(mapboxDirections.getDestination().geometry.coordinates[0],mapboxDirections.getDestination().geometry.coordinates[1]).then(
+      data => setEndPosition(data.features[0].place_name)
+    ).catch(error => toast.error(error));
+    getDirections(mapboxDirections.getOrigin().geometry.coordinates[0],mapboxDirections.getOrigin().geometry.coordinates[1],mapboxDirections.getDestination().geometry.coordinates[0],mapboxDirections.getDestination().geometry.coordinates[1]).then(data=>
+      setDistance((data.routes[0].distance/1000).toFixed(2))
+    )
+  }
+
+  useEffect(() => {
+    if(distance) setCost(distance*CURRENT_MONEY);
+  }, [distance]);
+
+  useEffect(()=>{
+    if (map.current) return; // initialize map only once
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [105.84438,21.042774],
+      zoom: 12
+    });
+    // new mapboxgl.Marker({
+    //   color: "#FFFFFF",
+    //   draggable: true
+    // }).setLngLat([105.84438, 21.042774]).addTo(map.current);
+
+    map.current.addControl(
+      mapboxDirections,
+      'top-left'
+    );
+    map.current.addControl(
+      new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl
+      }),
+      'top-right'
+    );
+    map.current.addControl(new mapboxgl.FullscreenControl());
+    map.current.addControl(
+      new mapboxgl.NavigationControl()
+    );
+    map.current.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        // When active the map will receive updates to the device's location as it changes.
+        trackUserLocation: true,
+        // Draw an arrow next to the location dot to indicate which direction the device is heading.
+        showUserHeading: true
+      })
+      );
+  },[])
 
   const createTrip = () =>{
     if(!cost) toast.error("Cost is required");
     else if(!time) toast.error("time start is required");
     else if(!date) toast.error("date start is required");
-    else if(!street) toast.error("street start is required");
-    else if(!streetEnd) toast.error("street end is required");
+    else if(!startPosition.localeCompare('No data')) toast.error("start position start is required");
+    else if(!endPosition.localeCompare('No data')) toast.error("end position is required");
     else{
       if(confirm("Are you sure you want create this trip?")){
-        let startPosition = street + ', ' + city[cityId-1].districts[district].name + ', ' + city[cityId-1].name;
-        let endPosition = streetEnd + ', ' + city[cityIdEnd-1].districts[districtEnd].name + ', ' + city[cityIdEnd-1].name;
         let timeToserver = getDay(date)+' '+ time;
-        // let startPosition = Object.assign({},{city:city[cityId-1].name, district: city[cityId-1].districts[district].name, street: street});
-        // let endPosition = Object.assign({},{city:city[cityIdEnd-1].name, district: city[cityIdEnd-1].districts[districtEnd].name, street: streetEnd});
         setLoading(true);
         callToServerWithTokenAndUserObject("post",'/v1/trip/register-trip',
         {
@@ -56,15 +113,6 @@ export default function TripRegister(props){
     }
   }
 
-  useEffect(()=>{
-    if(city){
-      setCityId(1);
-      setCityIdEnd(1);
-      setDistrict(0);
-      setDistrictEnd(0);
-    }
-  },[city])
-
   return <div className='d-flex flex-column mb-5 justify-content-center align-items-center w-100'>
     <div style={{width:"900px"}}>
       <h3 className='mt-3 sc-color fw-bold'>Create new Trip</h3>
@@ -77,10 +125,6 @@ export default function TripRegister(props){
         </SelectFieldInput>
       </div> 
       <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
-        <span className='sc-heading text-uppercase' style={{width:"250px"}}>Cost:</span>
-        <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" type='number' value={cost} save={value=>setCost(value)} placeholder="$" required={true}/>
-      </div> 
-      <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
         <span className='sc-heading text-uppercase' style={{width:"250px"}}>Time start:</span>
         <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" type='time' value={time} save={value=>setTime(value)} required={true}/>
       </div>
@@ -88,42 +132,23 @@ export default function TripRegister(props){
         <span className='sc-heading text-uppercase' style={{width:"250px"}}>Date start:</span>
         <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" type='date' value={date} save={value=>setDate(value)} required={true}/>
       </div>
+      <div ref={mapContainer} className="map-container" style={{height:"500px", width:"100%"}}/>
       <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
-        <span className='sc-heading text-uppercase' style={{width:"250px"}}>Start position:</span>
-        <div className='d-flex flex-row justify-content-between w-100'>
-        <SelectFieldInput width="auto" value={cityId} onChange={cityId=>setCityId(cityId)} required={true}>
-          {
-            Object.values(city).map(city=><option key={city.id} value={city.id}>{city.name}</option>)
-          }
-        </SelectFieldInput>
-        {
-          city[cityId-1] && <SelectFieldInput width="auto" value={district} onChange={district=>setDistrict(district)} required={true}>
-            {
-              city[cityId-1].districts.map(district=><option key={district.id} value={district.id}>{district.name}</option>)
-            }
-          </SelectFieldInput>
-        }
-        <TextFieldEditable fontSize={props.FONT_SIZE} width="350px" value={street} save={value=>setStreet(value)} placeholder="Name of Street" required={true}/>
-        </div>
-      </div> 
-      <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
-        <span className='sc-heading text-uppercase' style={{width:"250px"}}>End position:</span>
-        <div className='d-flex flex-row justify-content-between w-100'>
-        <SelectFieldInput width="auto" value={cityIdEnd} onChange={cityIdEnd=>setCityIdEnd(cityIdEnd)} required={true}>
-          {
-            Object.values(city).map(city=><option key={city.id} value={city.id}>{city.name}</option>)
-          }
-        </SelectFieldInput>
-        {
-          city[cityIdEnd-1] && <SelectFieldInput width="auto" value={districtEnd} onChange={district=>setDistrictEnd(district)} required={true}>
-            {
-              city[cityIdEnd-1].districts.map(district=><option key={district.id} value={district.id}>{district.name}</option>)
-            }
-          </SelectFieldInput>
-        }
-        <TextFieldEditable fontSize={props.FONT_SIZE} width="350px" value={streetEnd} save={value=>setStreetEnd(value)} placeholder="Name of Street" required={true}/>
-        </div>
+        <span className='sc-heading text-uppercase me-3' style={{width:"150px"}}>Start position:</span>
+        <span>{startPosition}</span>
+        <span className='sc-heading text-uppercase mx-3' style={{width:"130px"}}>End position:</span>
+        <span>{endPosition}</span>
+        <button type="button" className="btn btn-primary ms-3" onClick={getCoordinates}>
+          Select position
+        </button>
       </div>
+      <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
+        <span className='sc-heading text-uppercase' style={{width:"100px"}}>distance:</span>
+        <span className='mx-4'>{distance ? (distance + ' km') : '---'} </span>
+        <span className='sc-heading text-uppercase' style={{width:"50px"}}>Cost:</span>
+        <span className='ms-4'>{cost ? forMatMoneyVND(cost) : '---' }</span>
+        <span className='text-info ms-3'>{cost ? `(${forMatMoneyVND(CURRENT_MONEY)}/1km)` : '' }</span>
+      </div> 
       <div className='mt-4 d-flex justify-content-center'>
         {loading ? <div className="spinner-grow"></div> : <ButtonComponent btnType="btn-success" label="create trip" onClick={createTrip}/>}
       </div>

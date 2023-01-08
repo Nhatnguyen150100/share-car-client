@@ -1,3 +1,7 @@
+export const publicKey = 'pk.eyJ1Ijoibmt0b2FuMTkwNSIsImEiOiJjbGNnYjRwdWQwN25jM3FrYjR2cW0wdjBnIn0.Gmum4cSi-U6skWPEq4eQaA';
+
+export const CURRENT_MONEY = 9700;
+
 export const getDay = (day) =>{
     // let birthDate = ;
     let date = new Date(day).toISOString().substring(0,10);
@@ -20,3 +24,8 @@ export const getAgeFromBirthDay = (dateString) => {
     }
     return age;
 }
+
+export const forMatMoneyVND = (money) => {
+    return money.toLocaleString('it-IT', {style : 'currency', currency : 'VND'});
+}
+

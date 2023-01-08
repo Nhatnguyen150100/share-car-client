@@ -1,63 +1,70 @@
-import React, { Component } from 'react';
-import { GoogleMap, LoadScript, Polyline } from '@react-google-maps/api';
+import React, { useRef, useEffect, useState } from 'react';
+import mapboxgl from 'mapbox-gl';
+import { publicKey } from '../../common/Commom';
 
-const MapConfig = {
-  key: "AIzaSyDCXRPTsCGFIFnVQ-iIGs94mdoD-UN2Kfc"
-}
+// const testKey = 'sk.eyJ1Ijoibmt0b2FuMTkwNSIsImEiOiJjbGNsbXJ6Z2kxNXViM3dwNjN5ajdwc3l3In0.mQBjaJ11sn-JD9m67ReU-Q';
+// const publicKey = 'pk.eyJ1Ijoibmt0b2FuMTkwNSIsImEiOiJjbGNnYjRwdWQwN25jM3FrYjR2cW0wdjBnIn0.Gmum4cSi-U6skWPEq4eQaA';
 
-const mapContainerStyle = {
-  height: "400px",
-  width: "800px"
-};
-
-const center = {
-  lat: 0,
-  lng: -180
-};
-
-const onLoad = polyline => {
-  console.log('polyline: ', polyline)
-};
-
-const path = [
-  {lat: 37.772, lng: -122.214},
-  {lat: 21.291, lng: -157.821},
-  {lat: -18.142, lng: 178.431},
-  {lat: -27.467, lng: 153.027}
-];
-
-const options = {
-  strokeColor: '#FF0000',
-  strokeOpacity: 0.8,
-  strokeWeight: 2,
-  fillColor: '#FF0000',
-  fillOpacity: 0.35,
-  clickable: false,
-  draggable: false,
-  editable: false,
-  visible: true,
-  radius: 30000,
-  paths: [
-    {lat: 37.772, lng: -122.214},
-    {lat: 21.291, lng: -157.821},
-    {lat: -18.142, lng: 178.431},
-    {lat: -27.467, lng: 153.027}
-  ],
-  zIndex: 1
-};
+mapboxgl.accessToken = publicKey;
 
 export default function Map(){
-  return <LoadScript googleMapsApiKey={MapConfig.key}>
-    <GoogleMap
-      mapContainerStyle={mapContainerStyle}
-      center={center}
-      zoom={10}
-    >
-      <Polyline 
-        onLoad={onLoad}
-        path={path}
-        options={options}
-      />
-    </GoogleMap>
-  </LoadScript>
+  const mapContainer = useRef(null);
+  const map = useRef(null);
+  const [lngCenter, setLngCenter] = useState(105.84438);
+  const [latCenter, setLatCenter] = useState(21.042774);
+  const [zoom, setZoom] = useState(12);
+  const [startPosition, setStartPosition] = useState();
+  const [endPosition, setEndPosition] = useState();
+  const mapboxDirections = new MapboxDirections({
+    accessToken: mapboxgl.accessToken
+  })
+  // mapboxDirections.setOrigin(startPosition);
+  // mapboxDirections.setDestination(endPosition);
+
+  const getOrigin = () => {
+    return 
+  }
+
+  useEffect(() => {
+    if (map.current) return; // initialize map only once
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [lngCenter,latCenter],
+      zoom: zoom
+    });
+    // new mapboxgl.Marker({
+    //   color: "#FFFFFF",
+    //   draggable: true
+    // }).setLngLat([105.84438, 21.042774]).addTo(map.current);
+
+    map.current.addControl(
+      mapboxDirections,
+      'top-left'
+    );
+    map.current.addControl(
+      new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl
+      }),
+      'top-right'
+    );
+    map.current.addControl(new mapboxgl.FullscreenControl());
+    map.current.addControl(
+      new mapboxgl.NavigationControl()
+    );
+    map.current.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        // When active the map will receive updates to the device's location as it changes.
+        trackUserLocation: true,
+        // Draw an arrow next to the location dot to indicate which direction the device is heading.
+        showUserHeading: true
+      })
+      );
+  },[]);
+
+  return <div ref={mapContainer} className="map-container" style={{height:"500px", width:"770px"}}/>
 }
