@@ -4,13 +4,16 @@ export const CURRENT_MONEY = 9700;
 
 export const getDay = (day) =>{
     // let birthDate = ;
-    let date = new Date(day).toISOString().substring(0,10);
-    return date.split("-").reverse().join("-");
+    // let date = new Date(day).toISOString().substring(0,10);
+    // return date.split("-").reverse().join("-");
+    let date = day.split(' ')[0].split('-').reverse().join("-");
+    return date;
 }
 
 export const getTime = (day) =>{
     // let birthDate = ;
-    let date = new Date(day).toISOString().substring(12,16);
+    // let date = new Date(day).toISOString().substring(12,16);
+    let date = day.split(' ')[1];
     return date;
 }
 

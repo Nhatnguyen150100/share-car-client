@@ -56,10 +56,10 @@ export default function Account(props){
         <span className='sc-heading text-uppercase' style={{width:"300px"}}>address:</span>
         <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" disabled={false} value={address} save={value=>setAddress(value)} required={true}/>
       </div> 
-      <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
+      {/* <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
         <span className='sc-heading text-uppercase' style={{width:"300px"}}>birth day:</span>
         <TextFieldEditable type="date" fontSize={props.FONT_SIZE} width="100%" disabled={false} value={getDay(age)} save={value=>setAge(value)} required={true}/>
-      </div>
+      </div> */}
       <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
         <span className='sc-heading text-uppercase' style={{width:"300px"}}>phone Number:</span>
         <TextFieldEditable fontSize={props.FONT_SIZE} type="number" width="100%" disabled={false} value={phoneNumber} save={value=>setPhoneNumber(value)} required={true}/>

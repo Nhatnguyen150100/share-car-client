@@ -12,8 +12,9 @@ mapboxgl.accessToken = publicKey;
 
 export default function TripRegister(props){
   const driver = useSelector(state=>state.driver.data);
-  const mapContainer = useRef(null);
-  const map = useRef(null);
+  const user = useSelector(state=>state.user.data);
+  const mapContainerSelect = useRef(null);
+  const mapSelect = useRef(null);
 
   const [carId,setCarId] = useState(driver[0].id);
   const [cost,setCost] = useState();
@@ -22,8 +23,12 @@ export default function TripRegister(props){
   const [loading,setLoading] = useState(false);
   const [startPosition,setStartPosition] = useState('No data');
   const [endPosition,setEndPosition] = useState('No data');
+  const [latStartPosition,setLatStartPosition] = useState();
+  const [lngStartPosition,setLngStartPosition] = useState();
+  const [latEndPosition,setLatEndPosition] = useState();
+  const [lngEndPosition,setLngEndPosition] = useState();
   const [distance,setDistance] = useState();
-  const mapboxDirections = new MapboxDirections({
+  const mapboxDirectionsControl = new MapboxDirections({
     accessToken: mapboxgl.accessToken,
     profile: 'mapbox/driving',
     controls:{
@@ -32,13 +37,17 @@ export default function TripRegister(props){
   });
 
   const getCoordinates = () =>{
-    getLocationOnReverseGeocoding(mapboxDirections.getOrigin().geometry.coordinates[0],mapboxDirections.getOrigin().geometry.coordinates[1]).then(
+    setLngStartPosition(mapboxDirectionsControl.getOrigin().geometry.coordinates[0])
+    setLatStartPosition(mapboxDirectionsControl.getOrigin().geometry.coordinates[1]);
+    setLngEndPosition(mapboxDirectionsControl.getDestination().geometry.coordinates[0]);
+    setLatEndPosition(mapboxDirectionsControl.getDestination().geometry.coordinates[1]);
+    getLocationOnReverseGeocoding(mapboxDirectionsControl.getOrigin().geometry.coordinates[0],mapboxDirectionsControl.getOrigin().geometry.coordinates[1]).then(
       data => setStartPosition(data.features[0].place_name)
     ).catch(error => toast.error(error));
-    getLocationOnReverseGeocoding(mapboxDirections.getDestination().geometry.coordinates[0],mapboxDirections.getDestination().geometry.coordinates[1]).then(
+    getLocationOnReverseGeocoding(mapboxDirectionsControl.getDestination().geometry.coordinates[0],mapboxDirectionsControl.getDestination().geometry.coordinates[1]).then(
       data => setEndPosition(data.features[0].place_name)
     ).catch(error => toast.error(error));
-    getDirections(mapboxDirections.getOrigin().geometry.coordinates[0],mapboxDirections.getOrigin().geometry.coordinates[1],mapboxDirections.getDestination().geometry.coordinates[0],mapboxDirections.getDestination().geometry.coordinates[1]).then(data=>
+    getDirections(mapboxDirectionsControl.getOrigin().geometry.coordinates[0],mapboxDirectionsControl.getOrigin().geometry.coordinates[1],mapboxDirectionsControl.getDestination().geometry.coordinates[0],mapboxDirectionsControl.getDestination().geometry.coordinates[1]).then(data=>
       setDistance((data.routes[0].distance/1000).toFixed(2))
     )
   }
@@ -48,9 +57,9 @@ export default function TripRegister(props){
   }, [distance]);
 
   useEffect(()=>{
-    if (map.current) return; // initialize map only once
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
+    if (mapSelect.current) return; // initialize mapSelect only once
+    mapSelect.current = new mapboxgl.Map({
+      container: mapContainerSelect.current,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [105.84438,21.042774],
       zoom: 12
@@ -58,29 +67,29 @@ export default function TripRegister(props){
     // new mapboxgl.Marker({
     //   color: "#FFFFFF",
     //   draggable: true
-    // }).setLngLat([105.84438, 21.042774]).addTo(map.current);
+    // }).setLngLat([105.84438, 21.042774]).addTo(mapSelect.current);
 
-    map.current.addControl(
-      mapboxDirections,
+    mapSelect.current.addControl(
+      mapboxDirectionsControl,
       'top-left'
     );
-    // map.current.addControl(
+    // mapSelect.current.addControl(
     //   new MapboxGeocoder({
     //     accessToken: mapboxgl.accessToken,
     //     mapboxgl: mapboxgl
     //   }),
     //   'top-right'
     // );
-    map.current.addControl(new mapboxgl.FullscreenControl());
-    map.current.addControl(
+    mapSelect.current.addControl(new mapboxgl.FullscreenControl());
+    mapSelect.current.addControl(
       new mapboxgl.NavigationControl()
     );
-    map.current.addControl(
+    mapSelect.current.addControl(
       new mapboxgl.GeolocateControl({
         positionOptions: {
           enableHighAccuracy: true
         },
-        // When active the map will receive updates to the device's location as it changes.
+        // When active the mapSelect will receive updates to the device's location as it changes.
         trackUserLocation: true,
         // Draw an arrow next to the location dot to indicate which direction the device is heading.
         showUserHeading: true
@@ -96,7 +105,8 @@ export default function TripRegister(props){
     else if(!endPosition.localeCompare('No data')) toast.error("end position is required");
     else{
       if(confirm("Are you sure you want create this trip?")){
-        let timeToserver = getDay(date)+' '+ time;
+        // let timeToserver = getDay(date)+' '+ time;
+        let timeToserver = date +' '+ time;
         setLoading(true);
         callToServerWithTokenAndUserObject("post",'/v1/trip/register-trip',
         {
@@ -108,10 +118,10 @@ export default function TripRegister(props){
           carId: carId,
           startPosition: startPosition,
           endPosition: endPosition,
-          latStartPosition: mapboxDirections.getOrigin().geometry.coordinates[1],
-          lngStartPosition: mapboxDirections.getOrigin().geometry.coordinates[0],
-          latEndPosition: mapboxDirections.getDestination().geometry.coordinates[1],
-          lngEndPosition: mapboxDirections.getDestination().geometry.coordinates[0],
+          latStartPosition: latStartPosition,
+          lngStartPosition: lngStartPosition,
+          latEndPosition: latEndPosition,
+          lngEndPosition: lngEndPosition,
         },user.accessToken)
         .then((result) => {
           toast.success(result.message);
@@ -140,7 +150,7 @@ export default function TripRegister(props){
         <span className='sc-heading text-uppercase' style={{width:"250px"}}>Date start:</span>
         <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" type='date' value={date} save={value=>setDate(value)} required={true}/>
       </div>
-      <div ref={mapContainer} className="map-container" style={{height:"500px", width:"100%"}}/>
+      <div ref={mapContainerSelect} className="map-container" style={{height:"500px", width:"100%"}}/>
       <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
         <span className='sc-heading text-uppercase me-3' style={{width:"150px"}}>Start position:</span>
         <span>{startPosition}</span>

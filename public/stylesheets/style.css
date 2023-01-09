@@ -97,3 +97,10 @@
 .trip-hover:hover{
   background-color: rgb(210, 224, 238);
 }
+
+
+.mapboxgl-ctrl-geocoder--icon-search{
+  left: 125px !important;
+  width: 22px !important;
+  height: 26px !important;
+}

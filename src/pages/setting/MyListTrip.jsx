@@ -77,7 +77,7 @@ export default function MyListTrip(props){
               <th className='text-capitalize' scope="col">max user</th>
               <th className='text-capitalize' scope="col">Start position</th>
               <th className='text-capitalize' scope="col">End position</th>
-              <th className='text-capitalize' scope="col">Start Day</th>
+              <th className='text-capitalize' scope="col" style={{width:"100px"}}>Start Day</th>
               <th className='text-capitalize' scope="col">status</th>
               <th className='text-capitalize' scope="col">guests</th>
               <th className='text-capitalize' scope="col">Delete</th>
