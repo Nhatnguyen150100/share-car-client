@@ -6,7 +6,7 @@ import { CURRENT_MONEY, forMatMoneyVND, getAgeFromBirthDay, getDay, getTime, pub
 import { SelectFieldInput, TextFieldEditable } from '../common/FieldInput.jsx';
 import ButtonComponent from '../component/ButtonComponent.jsx';
 import NavBarComponent from '../component/NavBarComponent.jsx';
-import { setDataTrip } from '../redux/TripDetailSlice.jsx';
+import { setDataTrip, setDownLocationData } from '../redux/TripDetailSlice.jsx';
 import { callToServerWithTokenAndUserObject, getLocationOnReverseGeocoding, getToServerWithTokenAndUserObject } from '../services/getAPI.jsx';
 import mapboxgl from 'mapbox-gl';
 import { useRef } from 'react';
@@ -176,6 +176,7 @@ export default function ListTrip(props){
         toast.success(result.message);
         getListTrip();
         dispatch(setDataTrip(listTrip.filter((item) => item.id===id)[0]));
+        dispatch(setDownLocationData({downLocation:userLocationName,lngDownLocation:userLocation.lngDownLocation,latDownLocation:userLocation.latDownLocation}));
         nav('/trip-detail');
       })
       .catch((result) => toast.error(result.message));
