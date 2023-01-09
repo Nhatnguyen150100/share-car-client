@@ -7,7 +7,7 @@ import { SelectFieldInput, TextFieldEditable } from '../common/FieldInput.jsx';
 import ButtonComponent from '../component/ButtonComponent.jsx';
 import NavBarComponent from '../component/NavBarComponent.jsx';
 import { setDataTrip } from '../redux/TripDetailSlice.jsx';
-import { callToServerWithTokenAndUserObject, getToServerWithTokenAndUserObject } from '../services/getAPI.jsx';
+import { callToServerWithTokenAndUserObject, getLocationOnReverseGeocoding, getToServerWithTokenAndUserObject } from '../services/getAPI.jsx';
 import mapboxgl from 'mapbox-gl';
 import { useRef } from 'react';
 
@@ -24,6 +24,9 @@ export default function ListTrip(props){
 
   const [nameSearch,setNameSearch] = useState();
   const [citySearch,setCitySearch] = useState('');
+  const [userLocation,setUserLocation] = useState();
+  const [userLocationName,setUserLocationName] = useState('');
+  const [checkUserLocation,setCheckUserLocation] = useState(false);
 
   const mapContainer = useRef(null);
   const map = useRef(null);
@@ -37,6 +40,10 @@ export default function ListTrip(props){
     zoom:8,
     interactive: false
   });
+
+  const marker = new mapboxgl.Marker({
+    draggable: true
+  })
 
   const [loadingListTrip,setLoadingListTrip] = useState(false);
 
@@ -74,12 +81,36 @@ export default function ListTrip(props){
         // Draw an arrow next to the location dot to indicate which direction the device is heading.
         showUserHeading: true
       })
-      );
+    );
+    map.current.on('click', addMarker);
+    marker.on('dragend', onDragEnd);
   },[])
+
+  console.log(userLocationName);
 
   const setRouteOnMap = (lngStartPosition,latStartPosition,lngEndPosition,latEndPosition) => {
     mapboxDirections.setOrigin([lngStartPosition,latStartPosition]);
     mapboxDirections.setDestination([lngEndPosition,latEndPosition]);
+  }
+
+  const onDragEnd = () => {
+    let lngLat = marker.getLngLat();
+    setUserLocation({lngDownLocation:lngLat.lng,latDownLocation:lngLat.lat});
+    getLocationOnReverseGeocoding(lngLat.lng,lngLat.lat).then(data=>setUserLocationName(data.features[0].place_name));
+  }
+
+
+  const addMarker = (event) => {
+    if(map.current.getCanvas().style.cursor == 'crosshair'){
+      let coordinates = event.lngLat;
+      let userLocationOb = {lngDownLocation:coordinates.lng,latDownLocation:coordinates.lat};
+      getLocationOnReverseGeocoding(coordinates.lng,coordinates.lat).then(data=>setUserLocationName(data.features[0].place_name));
+      setUserLocation(userLocationOb);
+      console.log('Lng:', coordinates.lng, 'Lat:', coordinates.lat);
+      marker.setLngLat(coordinates).addTo(map.current);
+      setCheckUserLocation(false);
+      map.current.getCanvas().style.cursor = 'grab';
+    }
   }
 
   const onSearch = () => {
@@ -137,6 +168,9 @@ export default function ListTrip(props){
         id: user.id
       },
       {
+        latDownLocation: userLocation.latDownLocation,
+        lngDownLocation: userLocation.lngDownLocation,
+        downLocation: userLocationName,
       },user.accessToken)
       .then((result) => {
         toast.success(result.message);
@@ -145,6 +179,16 @@ export default function ListTrip(props){
         nav('/trip-detail');
       })
       .catch((result) => toast.error(result.message));
+    }
+  }
+
+  const onSetUserLocation = () => {
+    if(checkUserLocation){
+      setCheckUserLocation(false);
+      map.current.getCanvas().style.cursor = 'grab';
+    }else{
+      setCheckUserLocation(true);
+      map.current.getCanvas().style.cursor = 'crosshair';
     }
   }
 
@@ -172,7 +216,7 @@ export default function ListTrip(props){
             <div className='mt-2' style={{height:"850px",overflowY:"auto",paddingBottom:"80px",width:"460px"}}>
               {
                 listTrip.map((trip) => {
-                  return <div key={trip.id} className='d-flex flex-row mb-4 w-100 rounded p-3 trip-hover shadow-lg' style={{border:"double",borderColor:"#043d5d",cursor:"pointer"}} onMouseUp={e=>setRouteOnMap(trip.lngStartPosition,trip.latStartPosition,trip.lngEndPosition,trip.latEndPosition)} title="Click to see route on the map">
+                  return <div key={trip.id} className='d-flex flex-row mb-4 w-100 rounded p-3 trip-hover shadow-lg' style={{border:"double",borderColor:"#043d5d",cursor:"pointer"}} onMouseOver={e=>setRouteOnMap(trip.lngStartPosition,trip.latStartPosition,trip.lngEndPosition,trip.latEndPosition)} title="Click to see route on the map">
                     <div className='border p-3 rounded' style={{height:"80px",backgroundColor:"white"}}>
                       <img src="/assets/icon/user.png" alt="Avatar" className="avatar" style={{border:"double",borderColor:"#043d5d",height:"40px",width:"40px",padding:"5px"}}></img>
                     </div>
@@ -226,7 +270,17 @@ export default function ListTrip(props){
             </div>
           }
         </div>
-        <div ref={mapContainer} className="map-container" style={{height:"85%", width:"100%"}}/>
+        <button type='button' className={`p-0 btn d-flex align-items-center justify-content-center ${userLocation ? 'btn-success': checkUserLocation ? 'btn-danger':'btn-info'}`} style={{position:"absolute",zIndex:"2",left:"675px",top:"106px",width:"40px",height:"38px"}} onClick={onSetUserLocation} disabled={userLocation && true}>
+          <span className={`material-symbols-outlined ${(!userLocation && !checkUserLocation) && 'standout'}`}>
+            {checkUserLocation?'cancel':'nature_people'}
+          </span>
+        </button>
+        {
+          userLocationName && <div style={{position:"absolute",zIndex:"2",left:"725px",top:"106px",width:"650px",height:"40px"}}>
+            <TextFieldEditable fontSize="15px" width="100%" height="100%" value={userLocationName} save={value=>setUserLocationName(value)} required={true}/>
+          </div>
+        }
+        <div ref={mapContainer} className="map-container" style={{height:"85%", width:"100%"}} onMouseUp={e=>{if(!checkUserLocation) map.current.getCanvas().style.cursor = 'grab'}} onMouseDown={e=>{if(!checkUserLocation) map.current.getCanvas().style.cursor = 'grabbing'}}/>
       </div>
     </div>
   </div>

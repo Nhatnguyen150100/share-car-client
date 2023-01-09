@@ -62,7 +62,8 @@ export default function TripRegister(props){
       container: mapContainerSelect.current,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [105.84438,21.042774],
-      zoom: 12
+      zoom: 12,
+      cooperativeGestures: true
     });
     // new mapboxgl.Marker({
     //   color: "#FFFFFF",

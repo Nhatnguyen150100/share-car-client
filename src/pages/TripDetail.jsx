@@ -10,6 +10,7 @@ mapboxgl.accessToken = publicKey;
 
 export default function TripDetail(props){
   const trip = useSelector(state => state.trip.data);
+  const tripDetail = useSelector(state => state.trip.downLocationData);
   const [selectedTab,setSelectedTab] = useState(0);
 
   const mapContainerViewInfo = useRef(null);
@@ -24,6 +25,13 @@ export default function TripDetail(props){
     zoom:8,
     interactive: false
   });
+
+  useEffect(()=>{
+    if(tripDetail.downLocation) {
+      console.log('okee');
+      new mapboxgl.Marker({}).setLngLat([tripDetail.lngDownLocation,tripDetail.latDownLocation]).addTo(mapViewInfo.current);
+    }
+  },[tripDetail.downLocation])
  
   useEffect(()=>{
     if (mapViewInfo.current) return;
@@ -31,9 +39,10 @@ export default function TripDetail(props){
         container: mapContainerViewInfo.current,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [105.84438,21.042774],
-        zoom: 12
+        zoom: 12,
+        cooperativeGestures: true
       });
-  
+
       mapViewInfo.current.addControl(
         mapboxDirections,
         'bottom-left'
@@ -59,7 +68,7 @@ export default function TripDetail(props){
           // Draw an arrow next to the location dot to indicate which direction the device is heading.
           showUserHeading: true
         })
-        );
+      );
     
   },[])
 
@@ -126,6 +135,10 @@ export default function TripDetail(props){
           <div className='d-flex flex-row justify-content-start align-items-center my-2' style={{borderBottom:"double",paddingBottom:"2px"}}>
               <span className='sc-heading text-uppercase' style={{width:"300px"}}>end position:</span>
               <span style={{fontSize:"15px"}}>{trip.endPosition}</span>
+          </div>
+          <div className='d-flex flex-row justify-content-start align-items-center my-2' style={{borderBottom:"double",paddingBottom:"2px"}}>
+              <span className='sc-heading text-uppercase' style={{width:"300px"}}>user position:</span>
+              <span style={{fontSize:"15px"}}>{tripDetail.downLocation}</span>
           </div>
       </div>
       break;

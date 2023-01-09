@@ -104,3 +104,17 @@
   width: 22px !important;
   height: 26px !important;
 }
+
+.standout {
+  animation: crescendo 0.5s alternate infinite;
+  color: #043d5d;
+}
+
+@keyframes crescendo {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.5);
+  }
+}

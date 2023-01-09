@@ -45,6 +45,10 @@ export default function Account(props){
     .catch((text) => toast.error(text)).finally(() => setLoading(false));
   }
 
+  const forMatDate = (date) => {
+    return date.split('-').reverse().join("-");
+  }
+
   return <div className='d-flex flex-column my-4 justify-content-center align-items-center w-100'>
     <img src="/assets/icon/user.png" alt="Avatar" className="avatar" style={{border:"double",borderColor:"#043d5d",height:"100px",width:"100px",padding:"5px"}}></img>
     <div style={{width:"600px"}}>
@@ -56,10 +60,10 @@ export default function Account(props){
         <span className='sc-heading text-uppercase' style={{width:"300px"}}>address:</span>
         <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" disabled={false} value={address} save={value=>setAddress(value)} required={true}/>
       </div> 
-      {/* <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
+      <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
         <span className='sc-heading text-uppercase' style={{width:"300px"}}>birth day:</span>
-        <TextFieldEditable type="date" fontSize={props.FONT_SIZE} width="100%" disabled={false} value={getDay(age)} save={value=>setAge(value)} required={true}/>
-      </div> */}
+        <TextFieldEditable type="date" fontSize={props.FONT_SIZE} width="100%" disabled={false} value={age?forMatDate(age):age} save={value=>setAge(value)} required={true}/>
+      </div>
       <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
         <span className='sc-heading text-uppercase' style={{width:"300px"}}>phone Number:</span>
         <TextFieldEditable fontSize={props.FONT_SIZE} type="number" width="100%" disabled={false} value={phoneNumber} save={value=>setPhoneNumber(value)} required={true}/>
@@ -76,7 +80,7 @@ export default function Account(props){
         <span className='sc-heading text-uppercase' style={{width:"300px"}}>card id:</span>
         <TextFieldEditable fontSize={props.FONT_SIZE} type="number" width="100%" disabled={false} value={cardId} save={value=>setCarId(value)} required={true}/>
       </div>
-      <div className='my-3'>
+      <div className='my-3 w-100 d-flex justify-content-center'>
         {loading ? <div className="spinner-grow"></div> : <ButtonComponent label="update information account" onClick={updateProfile} />}
       </div>
     </div>

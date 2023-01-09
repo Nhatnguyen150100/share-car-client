@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getAgeFromBirthDay, getDay, getTime } from '../common/Commom';
 import NavBarComponent from '../component/NavBarComponent';
-import { setDataTrip } from '../redux/TripDetailSlice';
+import { setDataTrip, setDownLocationData } from '../redux/TripDetailSlice';
 import { getToServerWithTokenAndUserObject } from '../services/getAPI.jsx';
 
 export default function MyTrip(props){
@@ -32,6 +32,7 @@ export default function MyTrip(props){
 
   const setDataTripToRedux = (trip) =>{
     dispatch(setDataTrip(trip.tripInfo));
+    dispatch(setDownLocationData(trip));
   } 
 
   console.log(listTrip);
