@@ -25,13 +25,6 @@ export default function TripDetail(props){
     zoom:8,
     interactive: false
   });
-
-  useEffect(()=>{
-    if(tripDetail.downLocation) {
-      console.log('okee');
-      new mapboxgl.Marker({}).setLngLat([tripDetail.lngDownLocation,tripDetail.latDownLocation]).addTo(mapViewInfo.current);
-    }
-  },[tripDetail.downLocation])
  
   useEffect(()=>{
     if (mapViewInfo.current) return;
@@ -42,6 +35,10 @@ export default function TripDetail(props){
         zoom: 12,
         cooperativeGestures: true
       });
+
+      if(tripDetail.downLocation) {
+        new mapboxgl.Marker({}).setLngLat([tripDetail.lngDownLocation,tripDetail.latDownLocation]).addTo(mapViewInfo.current);
+      }
 
       mapViewInfo.current.addControl(
         mapboxDirections,

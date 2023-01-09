@@ -154,9 +154,9 @@ export default function TripRegister(props){
       <div ref={mapContainerSelect} className="map-container" style={{height:"500px", width:"100%"}}/>
       <div className='d-flex flex-row justify-content-start align-items-center my-4' style={{borderBottom:"double",paddingBottom:"5px"}}>
         <span className='sc-heading text-uppercase me-3' style={{width:"150px"}}>Start position:</span>
-        <span>{startPosition}</span>
+        <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" value={startPosition} save={value=>setStartPosition(value)} required={true}/>
         <span className='sc-heading text-uppercase mx-3' style={{width:"130px"}}>End position:</span>
-        <span>{endPosition}</span>
+        <TextFieldEditable fontSize={props.FONT_SIZE} width="100%" value={endPosition} save={value=>setEndPosition(value)} required={true}/>
         <button type="button" className="btn btn-primary ms-3" onClick={getCoordinates}>
           Select position
         </button>
