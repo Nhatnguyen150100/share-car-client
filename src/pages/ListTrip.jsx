@@ -154,7 +154,6 @@ export default function ListTrip(props){
     getToServerWithTokenAndUserObject('/v1/trip/',
     {},user.accessToken)
     .then((result) => {
-      toast.success(result.message);
       setListTrip(result.data);
     })
     .catch((result) => toast.error(result.message)).finally(() => setLoadingListTrip(false));
@@ -217,7 +216,7 @@ export default function ListTrip(props){
             <div className='mt-2' style={{height:"850px",overflowY:"auto",paddingBottom:"80px",width:"460px"}}>
               {
                 listTrip.map((trip) => {
-                  return <div key={trip.id} className='d-flex flex-row mb-4 w-100 rounded p-3 trip-hover shadow-lg' style={{border:"double",borderColor:"#043d5d",cursor:"pointer"}} onMouseOver={e=>setRouteOnMap(trip.lngStartPosition,trip.latStartPosition,trip.lngEndPosition,trip.latEndPosition)} title="Click to see route on the map">
+                  return <div key={trip.id} className='d-flex flex-row mb-4 w-100 rounded p-3 trip-hover shadow-lg' style={{border:"double",borderColor:"#043d5d",cursor:"pointer"}} onMouseOver={e=>setRouteOnMap(trip.lngStartPosition,trip.latStartPosition,trip.lngEndPosition,trip.latEndPosition)}>
                     <div className='border p-3 rounded' style={{height:"80px",backgroundColor:"white"}}>
                       <img src="/assets/icon/user.png" alt="Avatar" className="avatar" style={{border:"double",borderColor:"#043d5d",height:"40px",width:"40px",padding:"5px"}}></img>
                     </div>

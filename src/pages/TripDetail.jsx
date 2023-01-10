@@ -66,13 +66,17 @@ export default function TripDetail(props){
           showUserHeading: true
         })
       );
-    
+    mapViewInfo.current.on('load',()=>{
+      mapboxDirections.setOrigin([trip.lngStartPosition,trip.latStartPosition]);
+      mapboxDirections.setDestination([trip.lngEndPosition,trip.latEndPosition]);
+    })
   },[])
 
   useEffect(()=>{
-    mapboxDirections.setOrigin([trip.lngStartPosition,trip.latStartPosition]);
-    mapboxDirections.setDestination([trip.lngEndPosition,trip.latEndPosition]);
-  },[])
+    if(selectedTab==0) mapContainerViewInfo.current.style["display"] = 'none';
+    else mapContainerViewInfo.current.style["display"] = 'block';
+    console.log(mapContainerViewInfo.current.style);
+  },[selectedTab])
   
   let currentTab=null
 
@@ -155,8 +159,7 @@ export default function TripDetail(props){
             <span className="d-none d-lg-block" style={{fontSize:"13px"}}>Trip Infomation</span>
         </a></li>
       </ul>
-      {currentTab}
-      <div ref={mapContainerViewInfo} className="map-container" style={{height:"600px", width:"100%"}}/>
+      {currentTab}<div ref={mapContainerViewInfo} className="map-container" style={{height:"600px", width:"100%"}}/>
     </div>
   </div>
 }
