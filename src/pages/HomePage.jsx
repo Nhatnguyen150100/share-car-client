@@ -46,10 +46,12 @@ export default function HomePage() {
 						width: '815px',
 					}}>
 				</div>
-				<div className="d-flex flex-column align-items-center justify-content-center h-100 flex-grow-1">
+				<div className="d-flex flex-column align-items-start justify-content-start h-100 flex-grow-1" style={{paddingTop:"150px"}}>
           <h2 className='sc-heading text-uppercase fw-bold' style={{fontSize:"50px"}}>welcome to</h2>
-          <h1 className='sc-heading text-uppercase fw-bold' style={{fontSize:"70px"}}>share car</h1>
-					<div style={{ textAlign: 'justify' }}></div>
+          <h1 className='sc-heading text-uppercase fw-bold' style={{fontSize:"110px"}}>share car</h1>
+          <div className='d-flex justify-content-end' style={{width:"666px"}}>
+            <h3 className='sc-heading text-uppercase fw-bold' style={{fontSize:"30px",width:"550px",textAlign: 'right'}}>An application that helps you share rides with others</h3>
+          </div>
 				</div>
 			</div>
 		</div>
