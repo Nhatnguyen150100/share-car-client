@@ -167,8 +167,8 @@ export default function ListTrip(props){
         id: user.id
       },
       {
-        latDownLocation: userLocation.latDownLocation,
-        lngDownLocation: userLocation.lngDownLocation,
+        latDownLocation: userLocation?userLocation.latDownLocation:'',
+        lngDownLocation: userLocation?userLocation.lngDownLocation:'',
         downLocation: userLocationName,
       },user.accessToken)
       .then((result) => {
@@ -207,7 +207,7 @@ export default function ListTrip(props){
             </div>
           </div>
           {
-            loadingListTrip ? <div class="d-flex justify-content-center" style={{width:"460px"}}>
+            loadingListTrip ? <div className="d-flex justify-content-center" style={{width:"460px"}}>
               <div className="spinner-grow text-info" style={{width:"3rem",height: "3rem"}} role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
