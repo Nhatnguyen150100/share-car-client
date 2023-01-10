@@ -44,8 +44,11 @@ export default function HomePage() {
 						backgroundImage: `url("/assets/images/taxi-car.png")`,
 						backgroundSize: '100% 100%',
 						width: '815px',
-					}}></div>
-				<div className="d-flex flex-column align-items-center justify-content-center">
+					}}>
+				</div>
+				<div className="d-flex flex-column align-items-center justify-content-center h-100 flex-grow-1">
+          <h2 className='sc-heading text-uppercase fw-bold' style={{fontSize:"50px"}}>welcome to</h2>
+          <h1 className='sc-heading text-uppercase fw-bold' style={{fontSize:"70px"}}>share car</h1>
 					<div style={{ textAlign: 'justify' }}></div>
 				</div>
 			</div>

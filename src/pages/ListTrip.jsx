@@ -160,22 +160,22 @@ export default function ListTrip(props){
   }
 
 
-  const oderTrip = (id) =>{
+  const oderTrip = (trip) =>{
     if(confirm("Are you sure you want to order this trip?")){
-      callToServerWithTokenAndUserObject("post",`/v1/trip/${id}`,
+      callToServerWithTokenAndUserObject("post",`/v1/trip/${trip.id}`,
       {
         id: user.id
       },
       {
-        latDownLocation: userLocation?userLocation.latDownLocation:'',
-        lngDownLocation: userLocation?userLocation.lngDownLocation:'',
-        downLocation: userLocationName,
+        latDownLocation: userLocation?userLocation.latDownLocation:trip.latEndPosition,
+        lngDownLocation: userLocation?userLocation.lngDownLocation:trip.lngEndPosition,
+        downLocation: userLocationName?userLocationName:trip.endPosition,
       },user.accessToken)
       .then((result) => {
         toast.success(result.message);
         getListTrip();
-        dispatch(setDataTrip(listTrip.filter((item) => item.id===id)[0]));
-        dispatch(setDownLocationData({downLocation:userLocationName,lngDownLocation:userLocation.lngDownLocation,latDownLocation:userLocation.latDownLocation}));
+        dispatch(setDataTrip(listTrip.filter((item) => item.id===trip.id)[0]));
+        dispatch(setDownLocationData({downLocation:userLocationName?userLocationName:trip.endPosition,lngDownLocation:userLocation?userLocation.lngDownLocation:trip.lngEndPosition,latDownLocation:userLocation?userLocation.latDownLocation:trip.latEndPosition}));
         nav('/trip-detail');
       })
       .catch((result) => toast.error(result.message));
@@ -262,7 +262,7 @@ export default function ListTrip(props){
                         <h5 className='sc-heading ms-2' style={{color:"red",fontSize:"13px"}}>{forMatMoneyVND(trip.cost)}</h5>
                         <h5 className='sc-heading ms-2 text-info' style={{fontSize:"13px"}}>{`(${forMatMoneyVND(CURRENT_MONEY)}/1km)`}</h5>
                       </div>
-                      <ButtonComponent btnType={`${trip.userInfo.length==trip.carInfo.maxUser?'btn-danger':'btn-info'}`} className="mt-2" label={`${trip.userInfo.length==trip.carInfo.maxUser?'This trip is full':' Order trip'}`} onClick={e=>oderTrip(trip.id)} disabled={trip.userInfo.length==trip.carInfo.maxUser}/>
+                      <ButtonComponent btnType={`${trip.userInfo.length==trip.carInfo.maxUser?'btn-danger':'btn-info'}`} className="mt-2" label={`${trip.userInfo.length==trip.carInfo.maxUser?'This trip is full':' Order trip'}`} onClick={e=>oderTrip(trip)} disabled={trip.userInfo.length==trip.carInfo.maxUser}/>
                     </div>
                   </div>
                 })
