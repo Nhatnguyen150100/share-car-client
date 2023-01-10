@@ -41,12 +41,16 @@ export default function NavBarComponent(props) {
 							}}></div>
 							<h2 className="p-0 mb-0 ms-2" style={{fontWeight:"600",color:"white"}}>Share Car</h2>
 						</Link>
-            <Link className='d-flex flex-row align-items-center ms-4' to={'/list-car'} style={{textDecoration:"none",borderLeft:"double",borderColor:"white"}}>
-              <h3 className="p-0 mb-0 ms-4" style={{fontWeight:"600",color:"white"}}>List Trip</h3>
-            </Link>
-			<Link className='d-flex flex-row align-items-center ms-4' to={'/my-trip'} style={{textDecoration:"none",borderLeft:"double",borderColor:"white"}}>
-              <h3 className="p-0 mb-0 ms-4" style={{fontWeight:"600",color:"white"}}>My Trip</h3>
-            </Link>
+						{user.data.accessToken && (
+							<React.Fragment>
+								<Link className='d-flex flex-row align-items-center ms-4' to={'/list-car'} style={{textDecoration:"none",borderLeft:"double",borderColor:"white"}}>
+								<h3 className="p-0 mb-0 ms-4" style={{fontWeight:"600",color:"white"}}>List Trip</h3>
+								</Link>
+								<Link className='d-flex flex-row align-items-center ms-4' to={'/my-trip'} style={{textDecoration:"none",borderLeft:"double",borderColor:"white"}}>
+								<h3 className="p-0 mb-0 ms-4" style={{fontWeight:"600",color:"white"}}>My Trip</h3>
+								</Link>
+							</React.Fragment>
+						)}
           </div>
 					<div className="dropdown">
 						<button
