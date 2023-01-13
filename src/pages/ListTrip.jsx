@@ -27,9 +27,13 @@ export default function ListTrip(props){
   const [userLocation,setUserLocation] = useState();
   const [userLocationName,setUserLocationName] = useState('');
   const [checkUserLocation,setCheckUserLocation] = useState(false);
+  const [checkDownUserLocation,setCheckDownUserLocation] = useState(false);
+  const [loadingListTrip,setLoadingListTrip] = useState(false);
+  const [routeMap,setRouteMap] = useState();
 
   const mapContainer = useRef(null);
   const map = useRef(null);
+
   const mapboxDirections = new MapboxDirections({
     accessToken: mapboxgl.accessToken,
     profile: 'mapbox/driving',
@@ -45,7 +49,24 @@ export default function ListTrip(props){
     draggable: true
   })
 
-  const [loadingListTrip,setLoadingListTrip] = useState(false);
+  const getObstacle = (lng,lat) => {
+    let clearances = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [lng, lat]
+          },
+          properties: {
+            clearance: "13' 2"
+          }
+        }
+      ]
+    };
+    return turf.buffer(clearances, 0.25, { units: 'kilometers' });
+  }
 
   useEffect(()=>{
     if (map.current) return; // initialize map only once
@@ -84,32 +105,74 @@ export default function ListTrip(props){
     );
     map.current.on('click', addMarker);
     marker.on('dragend', onDragEnd);
+    marker.on('dragstart', onDragStart);
+    mapboxDirections.on('route', (event)=>{
+      const routes = event.route.map((route, index) => ({
+        ...route,
+        id: index
+      }));
+      setRouteMap(routes[0]);
+    })
   },[])
 
-  console.log(userLocationName);
+
+  useEffect(()=>{
+    
+  console.log(routeMap);
+    if(userLocation){
+      let routeLine = polyline.toGeoJSON(routeMap.geometry);
+      let check = turf.booleanDisjoint(getObstacle(userLocation.lngDownLocation,userLocation.latDownLocation), routeLine) === true;
+      setCheckDownUserLocation(!check);
+      if(!check) map.current.setPaintProperty('makerRadius','fill-color','green');
+      else map.current.setPaintProperty('makerRadius','fill-color','#e76366');
+    }
+  },[userLocation,routeMap]);
+
+  const setRadiusLocation = (obstacle) => {
+    map.current.addLayer({
+      id: `makerRadius`,
+      type: 'fill',
+      source: {
+        type: 'geojson',
+        data: obstacle
+      },
+      layout: {},
+      paint: {
+        'fill-color': '#e76366',
+        'fill-opacity': 0.4,
+        'fill-outline-color': '#043d5d'
+      }
+    });
+  }
 
   const setRouteOnMap = (lngStartPosition,latStartPosition,lngEndPosition,latEndPosition) => {
     mapboxDirections.setOrigin([lngStartPosition,latStartPosition]);
     mapboxDirections.setDestination([lngEndPosition,latEndPosition]);
   }
 
+  const onDragStart = () => {
+    if (!map.current.getSource('makerRadius')) return;
+    map.current.removeLayer('makerRadius');
+    map.current.removeSource('makerRadius');
+  }
+
   const onDragEnd = () => {
     let lngLat = marker.getLngLat();
+    setRadiusLocation(getObstacle(lngLat.lng,lngLat.lat));
     setUserLocation({lngDownLocation:lngLat.lng,latDownLocation:lngLat.lat});
     getLocationOnReverseGeocoding(lngLat.lng,lngLat.lat).then(data=>setUserLocationName(data.features[0].place_name));
   }
-
 
   const addMarker = (event) => {
     if(map.current.getCanvas().style.cursor == 'crosshair'){
       let coordinates = event.lngLat;
       let userLocationOb = {lngDownLocation:coordinates.lng,latDownLocation:coordinates.lat};
       getLocationOnReverseGeocoding(coordinates.lng,coordinates.lat).then(data=>setUserLocationName(data.features[0].place_name));
-      setUserLocation(userLocationOb);
-      console.log('Lng:', coordinates.lng, 'Lat:', coordinates.lat);
       marker.setLngLat(coordinates).addTo(map.current);
       setCheckUserLocation(false);
       map.current.getCanvas().style.cursor = 'grab';
+      setUserLocation(userLocationOb);
+      setRadiusLocation(getObstacle(coordinates.lng,coordinates.lat));
     }
   }
 
@@ -148,7 +211,6 @@ export default function ListTrip(props){
     })
   }
   
-
   const getListTrip = () => {
     setLoadingListTrip(true);
     getToServerWithTokenAndUserObject('/v1/trip/',
@@ -161,24 +223,28 @@ export default function ListTrip(props){
 
 
   const oderTrip = (trip) =>{
-    if(confirm("Are you sure you want to order this trip?")){
-      callToServerWithTokenAndUserObject("post",`/v1/trip/${trip.id}`,
-      {
-        id: user.id
-      },
-      {
-        latDownLocation: userLocation?userLocation.latDownLocation:trip.latEndPosition,
-        lngDownLocation: userLocation?userLocation.lngDownLocation:trip.lngEndPosition,
-        downLocation: userLocationName?userLocationName:trip.endPosition,
-      },user.accessToken)
-      .then((result) => {
-        toast.success(result.message);
-        getListTrip();
-        dispatch(setDataTrip(listTrip.filter((item) => item.id===trip.id)[0]));
-        dispatch(setDownLocationData({downLocation:userLocationName?userLocationName:trip.endPosition,lngDownLocation:userLocation?userLocation.lngDownLocation:trip.lngEndPosition,latDownLocation:userLocation?userLocation.latDownLocation:trip.latEndPosition}));
-        nav('/trip-detail');
-      })
-      .catch((result) => toast.error(result.message));
+    if(!checkDownUserLocation){
+      toast.error("The drop off location is too far from the driver's route")
+    }else{
+      if(confirm("Are you sure you want to order this trip?")){
+        callToServerWithTokenAndUserObject("post",`/v1/trip/${trip.id}`,
+        {
+          id: user.id
+        },
+        {
+          latDownLocation: userLocation?userLocation.latDownLocation:trip.latEndPosition,
+          lngDownLocation: userLocation?userLocation.lngDownLocation:trip.lngEndPosition,
+          downLocation: userLocationName?userLocationName:trip.endPosition,
+        },user.accessToken)
+        .then((result) => {
+          toast.success(result.message);
+          getListTrip();
+          dispatch(setDataTrip(listTrip.filter((item) => item.id===trip.id)[0]));
+          dispatch(setDownLocationData({downLocation:userLocationName?userLocationName:trip.endPosition,lngDownLocation:userLocation?userLocation.lngDownLocation:trip.lngEndPosition,latDownLocation:userLocation?userLocation.latDownLocation:trip.latEndPosition}));
+          nav('/trip-detail');
+        })
+        .catch((result) => toast.error(result.message));
+      }
     }
   }
 
@@ -270,7 +336,7 @@ export default function ListTrip(props){
             </div>
           }
         </div>
-        <button type='button' className={`p-0 btn d-flex align-items-center justify-content-center ${userLocation ? 'btn-success': checkUserLocation ? 'btn-danger':'btn-info'}`} style={{position:"absolute",zIndex:"2",left:"675px",top:"106px",width:"40px",height:"38px"}} onClick={onSetUserLocation} disabled={userLocation && true}>
+        <button type='button' className={`p-0 btn d-flex align-items-center justify-content-center ${userLocation ? 'btn-success': checkUserLocation ? 'btn-danger':'btn-info'}`} style={{position:"absolute",zIndex:"2",left:"675px",top:"106px",width:"40px",height:"38px"}} onClick={onSetUserLocation} disabled={userLocation || Object.keys(mapboxDirections.getOrigin()).length === 0}>
           <span className={`material-symbols-outlined ${(!userLocation && !checkUserLocation) && 'standout'}`}>
             {checkUserLocation?'cancel':'nature_people'}
           </span>
