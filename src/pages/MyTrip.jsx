@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getAgeFromBirthDay, getDay, getTime } from '../common/Commom';
+import { forMatMoneyVND, getAgeFromBirthDay, getDay, getTime } from '../common/Commom';
 import NavBarComponent from '../component/NavBarComponent';
 import { setDataTrip, setDownLocationData } from '../redux/TripDetailSlice';
 import { getToServerWithTokenAndUserObject } from '../services/getAPI.jsx';
@@ -54,6 +54,7 @@ export default function MyTrip(props){
                   <th className='text-capitalize' scope="col">stt</th>
                   <th className='text-capitalize' scope="col">driver name</th>
                   <th className='text-capitalize' scope="col">car name</th>
+                  <th className='text-capitalize' scope="col">cost</th>
                   <th className='text-capitalize' scope="col">time start</th>
                   <th className='text-capitalize' scope="col">start position</th>
                   <th className='text-capitalize' scope="col">end position</th>
@@ -67,6 +68,7 @@ export default function MyTrip(props){
                           <th className='text-center' scope="row">{index}</th>
                           <th className='text-center' scope="row">{value.tripInfo.driverInfo.fullName}</th>
                           <th className='text-center' scope="row">{value.tripInfo.carInfo.carName}</th>
+                          <th className='text-center text-danger' scope="row">{forMatMoneyVND(value.newCost)}</th>
                           <th className='text-center' scope="row">{getTime(value.tripInfo.startAt) + ' ~ ' + getDay(value.tripInfo.startAt)}</th>
                           <th className='text-center' scope="row">{value.tripInfo.startPosition}</th>
                           <th className='text-center' scope="row">{value.tripInfo.endPosition}</th>

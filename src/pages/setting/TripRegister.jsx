@@ -28,6 +28,8 @@ export default function TripRegister(props){
   const [latEndPosition,setLatEndPosition] = useState();
   const [lngEndPosition,setLngEndPosition] = useState();
   const [distance,setDistance] = useState();
+  const [area,setArea] = useState();
+
   const mapboxDirectionsControl = new MapboxDirections({
     accessToken: mapboxgl.accessToken,
     profile: 'mapbox/driving',
@@ -65,22 +67,11 @@ export default function TripRegister(props){
       zoom: 12,
       cooperativeGestures: true
     });
-    // new mapboxgl.Marker({
-    //   color: "#FFFFFF",
-    //   draggable: true
-    // }).setLngLat([105.84438, 21.042774]).addTo(mapSelect.current);
 
     mapSelect.current.addControl(
       mapboxDirectionsControl,
       'top-left'
     );
-    // mapSelect.current.addControl(
-    //   new MapboxGeocoder({
-    //     accessToken: mapboxgl.accessToken,
-    //     mapboxgl: mapboxgl
-    //   }),
-    //   'top-right'
-    // );
     mapSelect.current.addControl(new mapboxgl.FullscreenControl());
     mapSelect.current.addControl(
       new mapboxgl.NavigationControl()
@@ -123,6 +114,7 @@ export default function TripRegister(props){
           lngStartPosition: lngStartPosition,
           latEndPosition: latEndPosition,
           lngEndPosition: lngEndPosition,
+          area: distance
         },user.accessToken)
         .then((result) => {
           toast.success(result.message);
@@ -167,6 +159,8 @@ export default function TripRegister(props){
         <span className='sc-heading text-uppercase' style={{width:"50px"}}>Cost:</span>
         <span className='ms-4'>{cost ? forMatMoneyVND(cost) : '---' }</span>
         <span className='text-info ms-3'>{cost ? `(${forMatMoneyVND(CURRENT_MONEY)}/1km)` : '' }</span>
+        <span className='sc-heading text-uppercase ms-4' style={{width:"100px"}}>User Cost:</span>
+        <span className='ms-1'>{cost ? forMatMoneyVND(cost/(Number(driver[0].maxUser)+1)) : '---' }</span>
       </div> 
       <div className='mt-4 d-flex justify-content-center'>
         {loading ? <div className="spinner-grow"></div> : <ButtonComponent btnType="btn-success" label="create trip" onClick={createTrip}/>}

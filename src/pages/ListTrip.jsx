@@ -7,7 +7,7 @@ import { SelectFieldInput, TextFieldEditable } from '../common/FieldInput.jsx';
 import ButtonComponent from '../component/ButtonComponent.jsx';
 import NavBarComponent from '../component/NavBarComponent.jsx';
 import { setDataTrip, setDownLocationData } from '../redux/TripDetailSlice.jsx';
-import { callToServerWithTokenAndUserObject, getLocationOnReverseGeocoding, getToServerWithTokenAndUserObject } from '../services/getAPI.jsx';
+import { callToServerWithTokenAndUserObject, getDirections, getLocationOnReverseGeocoding, getToServerWithTokenAndUserObject } from '../services/getAPI.jsx';
 import mapboxgl from 'mapbox-gl';
 import { useRef } from 'react';
 
@@ -21,6 +21,7 @@ export default function ListTrip(props){
   const nav = useNavigate();
 
   const [listTrip,setListTrip] = useState([]);
+  const [startPosition,setStartPosition] = useState();
 
   const [nameSearch,setNameSearch] = useState();
   const [citySearch,setCitySearch] = useState('');
@@ -65,8 +66,9 @@ export default function ListTrip(props){
         }
       ]
     };
-    return turf.buffer(clearances, 0.25, { units: 'kilometers' });
+    return turf.buffer(clearances, 0.15, { units: 'kilometers' });
   }
+
 
   useEffect(()=>{
     if (map.current) return; // initialize map only once
@@ -115,10 +117,7 @@ export default function ListTrip(props){
     })
   },[])
 
-
   useEffect(()=>{
-    
-  console.log(routeMap);
     if(userLocation){
       let routeLine = polyline.toGeoJSON(routeMap.geometry);
       let check = turf.booleanDisjoint(getObstacle(userLocation.lngDownLocation,userLocation.latDownLocation), routeLine) === true;
@@ -146,6 +145,7 @@ export default function ListTrip(props){
   }
 
   const setRouteOnMap = (lngStartPosition,latStartPosition,lngEndPosition,latEndPosition) => {
+    setStartPosition({lngStartPosition:lngStartPosition,latStartPosition:latStartPosition});
     mapboxDirections.setOrigin([lngStartPosition,latStartPosition]);
     mapboxDirections.setDestination([lngEndPosition,latEndPosition]);
   }
@@ -222,11 +222,13 @@ export default function ListTrip(props){
   }
 
 
-  const oderTrip = (trip) =>{
-    if(!checkDownUserLocation){
+  const oderTrip = async (trip) =>{
+    let newDirection = null;
+    if(!checkDownUserLocation && userLocation){
       toast.error("The drop off location is too far from the driver's route")
     }else{
-      if(confirm("Are you sure you want to order this trip?")){
+      if(userLocation) await getDirections(startPosition.lngStartPosition,startPosition.latStartPosition,userLocation.lngDownLocation,userLocation.latDownLocation).then(data => newDirection =  (data.routes[0].distance/1000).toFixed(2))   
+      if(confirm(`Are you sure you want to order this trip ${newDirection?`with ${forMatMoneyVND((newDirection/trip.area)*trip.cost/(Number(trip.carInfo.maxUser)+1))}`:''}?`)){
         callToServerWithTokenAndUserObject("post",`/v1/trip/${trip.id}`,
         {
           id: user.id
@@ -235,6 +237,7 @@ export default function ListTrip(props){
           latDownLocation: userLocation?userLocation.latDownLocation:trip.latEndPosition,
           lngDownLocation: userLocation?userLocation.lngDownLocation:trip.lngEndPosition,
           downLocation: userLocationName?userLocationName:trip.endPosition,
+          newCost: newDirection?((newDirection/trip.area)*trip.cost/(Number(trip.carInfo.maxUser)+1)):trip.cost/(Number(trip.carInfo.maxUser)+1)
         },user.accessToken)
         .then((result) => {
           toast.success(result.message);
@@ -281,7 +284,7 @@ export default function ListTrip(props){
             :
             <div className='mt-2' style={{height:"850px",overflowY:"auto",paddingBottom:"80px",width:"460px"}}>
               {
-                listTrip.map((trip) => {
+                listTrip?.map((trip) => {
                   return <div key={trip.id} className='d-flex flex-row mb-4 w-100 rounded p-3 trip-hover shadow-lg' style={{border:"double",borderColor:"#043d5d",cursor:"pointer"}} onMouseOver={e=>setRouteOnMap(trip.lngStartPosition,trip.latStartPosition,trip.lngEndPosition,trip.latEndPosition)}>
                     <div className='border p-3 rounded' style={{height:"80px",backgroundColor:"white"}}>
                       <img src="/assets/icon/user.png" alt="Avatar" className="avatar" style={{border:"double",borderColor:"#043d5d",height:"40px",width:"40px",padding:"5px"}}></img>
@@ -325,7 +328,7 @@ export default function ListTrip(props){
                       </div>
                       <div className='d-flex flex-row'>
                         <h5 style={{width:"100px",fontSize:"13px"}}>Cost: </h5>
-                        <h5 className='sc-heading ms-2' style={{color:"red",fontSize:"13px"}}>{forMatMoneyVND(trip.cost)}</h5>
+                        <h5 className='sc-heading ms-2' style={{color:"red",fontSize:"13px"}}>{forMatMoneyVND(trip.cost/(Number(trip.carInfo.maxUser)+1))}</h5>
                         <h5 className='sc-heading ms-2 text-info' style={{fontSize:"13px"}}>{`(${forMatMoneyVND(CURRENT_MONEY)}/1km)`}</h5>
                       </div>
                       <ButtonComponent btnType={`${trip.userInfo.length==trip.carInfo.maxUser?'btn-danger':'btn-info'}`} className="mt-2" label={`${trip.userInfo.length==trip.carInfo.maxUser?'This trip is full':' Order trip'}`} onClick={e=>oderTrip(trip)} disabled={trip.userInfo.length==trip.carInfo.maxUser}/>
