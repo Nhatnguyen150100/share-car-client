@@ -45,7 +45,6 @@ export default function Login(props) {
 				backgroundImage: `url("/assets/images/login_background.jpg")`,
 				backgroundSize: '100% 100%',
 			}}>
-				<NavBarComponent/>
 			<div
 				className="d-flex flex-column align-items-center justify-content-center flex-grow-1"
 				style={{ width: '360px' }}>
