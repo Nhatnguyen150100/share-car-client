@@ -327,9 +327,16 @@ export default function ListTrip(props){
                         <h5 className='sc-heading ms-2' style={{fontSize:"13px"}}>{getTime(trip.startAt) + ' ~ ' + getDay(trip.startAt)}</h5>
                       </div>
                       <div className='d-flex flex-row'>
-                        <h5 style={{width:"100px",fontSize:"13px"}}>Cost: </h5>
-                        <h5 className='sc-heading ms-2' style={{color:"red",fontSize:"13px"}}>{forMatMoneyVND(trip.cost/(Number(trip.carInfo.maxUser)+1))}</h5>
+                        <h5 style={{width:"100px",fontSize:"13px"}}>Cost default: </h5>
                         <h5 className='sc-heading ms-2 text-info' style={{fontSize:"13px"}}>{`(${forMatMoneyVND(CURRENT_MONEY)}/1km)`}</h5>
+                      </div>
+                      <div className='d-flex flex-row'>
+                        <h5 style={{width:"100px",fontSize:"13px"}}>Total cost: </h5>
+                        <h5 className='sc-heading ms-2' style={{color:"red",fontSize:"13px"}}>{forMatMoneyVND(trip.cost)} {`(${Number(trip.carInfo.maxUser)} user and 1 driver)`}</h5>
+                      </div>
+                      <div className='d-flex flex-row'>
+                        <h5 style={{width:"100px",fontSize:"13px"}}>Cost: </h5>
+                        <h5 className='sc-heading ms-2' style={{color:"green",fontSize:"13px"}}>{forMatMoneyVND(trip.cost/(Number(trip.carInfo.maxUser)+1))}</h5>
                       </div>
                       <ButtonComponent btnType={`${trip.userInfo.length==trip.carInfo.maxUser?'btn-danger':'btn-info'}`} className="mt-2" label={`${trip.userInfo.length==trip.carInfo.maxUser?'This trip is full':' Order trip'}`} onClick={e=>oderTrip(trip)} disabled={trip.userInfo.length==trip.carInfo.maxUser}/>
                     </div>
